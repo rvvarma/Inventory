@@ -5,16 +5,16 @@
 var request = require('request');
 var express = require('express');
 var router = express.Router();
-// gets the list of all the invoice that are having status opened of a company
+// gets the list of all the invoice that are having status  closed and opened
 
 
-router.get('/invoicelist/:cid', function(req, res) {
+router.get('/itemlist/:cid', function(req, res) {
   var cid = req.params.cid;
     var options = { headers: {
         'Authorization': 'Basic QWRtaW5pc3RyYXRvcjo=',
         'x-myobapi-version':'v2'
     },
-        url: "http://13.126.47.35:8080/AccountRight/"+cid+"/sale/CustomerPayment?format=json"
+        url: "http://13.126.47.35:8080/AccountRight/"+cid+"/Inventory/Item?format=json"
     }
     request.get(options, function(error, response, body) {
         res.set('Content-Type', 'Application/json');
@@ -29,8 +29,8 @@ router.get('/invoicelist/:cid', function(req, res) {
         }
     });
 })
-//gets total details of a invoice
-router.get('/invoice/:cid/:id', function(req, res) {
+//all contacts in a perticular company
+router.get('/singleitem/:cid/:id', function(req, res) {
     var cid = req.params.cid;
     var id = req.params.id;
     var options = { headers: {
@@ -39,11 +39,12 @@ router.get('/invoice/:cid/:id', function(req, res) {
 
 
     },
-     url: "http://13.126.47.35:8080/AccountRight/"+cid+"/Sale/CustomerPayment/"+id+"?format=json"
+     url: "http://13.126.47.35:8080/AccountRight/"+cid+"/Inventory/Item/"+id+"?format=json"
     }
     request.get(options, function(error, response, body) {
         res.set('Content-Type', 'Application/json');
         if (!error && response.statusCode == 200) {
+
             res.status(response.statusCode).send(body);
 
         } else {
@@ -55,7 +56,7 @@ router.get('/invoice/:cid/:id', function(req, res) {
 })
 
 
-router.post('/invoice/new/:cid', function(req, res) {
+router.post('/item/new/:cid', function(req, res) {
     var cid = req.params.cid;
     var requestBody = JSON.stringify(req.body);
     console.log("Request body: "+requestBody);
@@ -63,7 +64,7 @@ router.post('/invoice/new/:cid', function(req, res) {
         'Authorization': 'Basic QWRtaW5pc3RyYXRvcjo=',
         'x-myobapi-version':'v2'
     },
-        url: "http://13.126.47.35:8080/AccountRight/"+cid+"/Sale/CustomerPayment?format=json",
+        url: "http://13.126.47.35:8080/AccountRight/"+cid+"/Inventory/Item?format=json",
         body: requestBody
     }
     request.post(options, function(error, response, body) {
@@ -80,8 +81,33 @@ router.post('/invoice/new/:cid', function(req, res) {
         }
     });
 })
+router.put('/item/update/:cid/:id', function(req, res) {
+      var id = req.params.id;
+     var cid = req.params.cid;
+    var requestBody = JSON.stringify(req.body);
+    console.log("Request body: "+requestBody);
+    var options = { headers: {
+        'Authorization': 'Basic QWRtaW5pc3RyYXRvcjo=',
+        'x-myobapi-version':'v2'
+    },
+        url: "http://13.126.47.35:8080/AccountRight/"+cid+"/Inventory/Item/"+id+"/?format=json",
+        body: requestBody
+    }
+    request.post(options, function(error, response, body) {
+        res.set('Content-Type', 'Application/json');
+        if (!error && response.statusCode == 200) {
 
-router.delete('/invoice/:cid/:id', function(req, res) {
+            res.status(response.statusCode).send(body);
+
+
+        } else {
+            console.log("failure response from Myob: "+body);
+            res.status(response.statusCode).send(body);
+
+        }
+    });
+})
+router.delete('/item/delete/:cid/:id', function(req, res) {
     var id = req.params.id;
     var cid = req.params.cid;
     console.log("Request param id: "+id);
@@ -89,7 +115,7 @@ router.delete('/invoice/:cid/:id', function(req, res) {
         'Authorization': 'Basic QWRtaW5pc3RyYXRvcjo=',
         'x-myobapi-version':'v2'
     },
-       url: "http://13.126.47.35:8080/AccountRight/"+cid+"/Sale/CustomerPayment/"+id+"?format=json"
+      url:"http://13.126.47.35:8080/AccountRight/"+cid+"/Inventory/Item/"+id+"/?format=json"
     }
     request.delete(options, function(error, response, body) {
         res.set('Content-Type', 'Application/json');
